@@ -1,0 +1,334 @@
+:root {
+  --night: #101418;
+  --slate: #1c2228;
+  --limestone: #b7a994;
+  --limestone-wet: #8c8070;
+  --basin: #16323c;
+  --verdigris: #3f6f62;
+  --brass: #c4a05a;
+  --brass-deep: #7a5a28;
+  --brass-bright: #e0c07a;
+  --candle: #e8a03a;
+  --oxblood: #7a1e28;
+  --bone: #e6ddcc;
+  --dye-system: #d9d0bc;
+  --dye-token: #4f9ea3;
+  --dye-compute: #8b9a5c;
+  --dye-dex: #c45a32;
+  --dye-stake: #6b5344;
+  --dye-other: #4e6a7a;
+  --fee: 0.08;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--night);
+  color: var(--bone);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 55% 48% at 18% 6%, rgba(232, 160, 58, 0.11), transparent 58%),
+    radial-gradient(ellipse 40% 36% at 82% 78%, rgba(42, 90, 100, 0.1), transparent 55%),
+    linear-gradient(180deg, #171d24 0%, var(--night) 42%, #080a0c 100%);
+}
+
+body::after {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  opacity: 0.04;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent 0 2px,
+    rgba(0, 0, 0, 0.35) 2px 3px
+  );
+  mix-blend-mode: multiply;
+}
+
+#desk {
+  position: relative;
+  min-height: 100dvh;
+}
+
+.mast {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 1.25rem 1.4rem 0 1.55rem;
+  z-index: 2;
+  pointer-events: none;
+  max-width: 28rem;
+}
+
+.inv {
+  margin: 0 0 0.45rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--verdigris);
+}
+
+.mast h1 {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  letter-spacing: -0.03em;
+  color: var(--bone);
+  line-height: 0.88;
+}
+
+.tag {
+  margin: 0.45rem 0 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--limestone-wet);
+}
+
+#clock {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.plate {
+  position: absolute;
+  right: 1.35rem;
+  bottom: 7.5%;
+  width: min(21.5rem, 36vw);
+  padding: 1.2rem 1.15rem 1.05rem;
+  z-index: 3;
+  color: #241c12;
+  background:
+    linear-gradient(155deg, #d8b56c 0%, var(--brass) 42%, #9a7438 100%);
+  border: 1px solid #8a642c;
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.48),
+    inset 0 1px 0 rgba(255, 230, 170, 0.4),
+    inset 0 -10px 18px rgba(63, 111, 98, 0.22);
+  transform: rotate(-1.7deg);
+}
+
+.plate-screw {
+  position: absolute;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 40deg, #6a4a1c, #e0c07a, #6a4a1c);
+  box-shadow: inset 0 0 0 1px rgba(40, 28, 10, 0.35);
+}
+
+.plate-screw::after {
+  content: '';
+  position: absolute;
+  inset: 35% 12%;
+  background: #3a2a12;
+  height: 1.5px;
+  top: 48%;
+}
+
+.plate-screw-tl { top: 0.45rem; left: 0.45rem; }
+.plate-screw-tr { top: 0.45rem; right: 0.45rem; }
+.plate-screw-bl { bottom: 0.45rem; left: 0.45rem; }
+.plate-screw-br { bottom: 0.45rem; right: 0.45rem; }
+
+.plate-mark {
+  margin: 0 0 0.7rem;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: var(--brass-deep);
+}
+
+.plate dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem 0.9rem;
+}
+
+.plate dt {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  color: #5c4a28;
+}
+
+.stains-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  border-top: 1px solid rgba(90, 70, 32, 0.25);
+  padding-top: 0.4rem;
+}
+
+.stains-row dd {
+  margin: 0;
+}
+
+.glow-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.85rem 0 0.7rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5c4a28;
+}
+
+.glow-bar {
+  flex: 1;
+  height: 0.42rem;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #2a323a, #3f6f62, var(--candle) 70%, #f3c56b);
+  box-shadow: 0 0 calc(6px + var(--fee) * 18px) rgba(232, 160, 58, calc(0.2 + var(--fee) * 0.6));
+}
+
+.dye-key {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.22rem 0.6rem;
+  font-size: 0.68rem;
+  color: #3a2e1c;
+}
+
+.dye-key li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 1px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+
+.swatch-system { background: var(--dye-system); }
+.swatch-token { background: var(--dye-token); }
+.swatch-compute { background: var(--dye-compute); }
+.swatch-dex { background: var(--dye-dex); }
+.swatch-stake { background: var(--dye-stake); }
+.swatch-other { background: var(--dye-other); }
+.swatch-fail { background: var(--oxblood); }
+
+.hold {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.85rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #5c4318;
+  background: linear-gradient(180deg, #3a2e1c, #241c12);
+  color: var(--bone);
+  font-family: inherit;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.hold:hover,
+.hold:focus-visible {
+  outline: none;
+  border-color: var(--candle);
+}
+
+.hold-lamp {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #4a3a22;
+  box-shadow: inset 0 0 0 1px #1a140c;
+}
+
+.hold.is-held .hold-lamp {
+  background: var(--candle);
+  box-shadow: 0 0 10px var(--candle);
+}
+
+.plate-note {
+  margin: 0.55rem 0 0;
+  font-size: 0.62rem;
+  line-height: 1.45;
+  color: #5c4a28;
+}
+
+.floor-note {
+  position: absolute;
+  left: 1.55rem;
+  bottom: 1.1rem;
+  z-index: 2;
+  margin: 0;
+  max-width: 22rem;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--limestone-wet);
+}
+
+@media (max-width: 720px) {
+  .mast {
+    padding: 0.9rem 1rem 0;
+  }
+
+  #clock {
+    position: relative;
+    height: 56dvh;
+    min-height: 20rem;
+  }
+
+  .plate {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: auto;
+    margin: 0.6rem 0.8rem 0.4rem;
+    transform: none;
+  }
+
+  .floor-note {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    margin: 0.4rem 1rem 1.2rem;
+  }
+
+  #desk {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plate {
+    transform: none;
+  }
+}
