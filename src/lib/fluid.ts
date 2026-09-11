@@ -168,11 +168,11 @@ function swirlLayer(src: Layer, tmp: Layer, angle: number, fade: number): void {
 export function spawnDrop(world: World, layout: Layout, job: DyeJob, jitter = true): void {
   const jx = jitter ? (Math.random() - 0.5) * 6 : 0
   world.drops.push({
-    x: layout.spoutX + 2 + jx,
-    y: layout.spoutY + 10,
-    vx: 12 + Math.random() * 18,
-    vy: 30 + Math.random() * 40,
-    r: job.failed ? 3.4 : 2.4 + Math.random() * 1.2,
+    x: layout.mouthX + jx,
+    y: layout.mouthY + 2,
+    vx: Math.cos(layout.spoutAng) * 40 + (Math.random() - 0.5) * 8,
+    vy: Math.sin(layout.spoutAng) * 50 + Math.random() * 20,
+    r: job.failed ? 4.2 : 3.2 + Math.random() * 1.4,
     family: job.family,
     failed: job.failed,
     age: 0,
@@ -190,16 +190,16 @@ function splash(world: World, x: number, y: number, job: { family: Family; faile
   })
   cap(world.ripples, 14)
 
-  const dyeN = reduced ? 4 : 10 + Math.floor(fee * 8)
+  const dyeN = reduced ? 6 : 16 + Math.floor(fee * 10)
   for (let i = 0; i < dyeN; i++) {
     const a = Math.random() * Math.PI * 2
-    const s = 12 + Math.random() * 38
+    const s = 18 + Math.random() * 52
     world.dyes.push({
-      x: x + Math.cos(a) * 4,
-      y: y + Math.sin(a) * 2,
+      x: x + Math.cos(a) * (8 + Math.random() * 36),
+      y: y + Math.sin(a) * (4 + Math.random() * 14),
       vx: Math.cos(a) * s,
-      vy: Math.sin(a) * s * 0.45,
-      r: 3 + Math.random() * 7,
+      vy: Math.sin(a) * s * 0.5,
+      r: 5 + Math.random() * 10,
       life: 1,
       family: job.family,
     })
@@ -241,7 +241,7 @@ export function stampInstant(world: World, water: WaterGeom, job: DyeJob): void 
   const x = water.cx + Math.cos(ang) * water.rx * rad
   const y = water.cy + Math.sin(ang) * water.ry * rad
   const p = toLayer(x, y, water, world.dye.size)
-  stampBlob(world.dye.ctx, p.x, p.y, 10 + Math.random() * 14, familyColor[job.family], job.failed ? 0.35 : 0.5)
+  stampBlob(world.dye.ctx, p.x, p.y, 16 + Math.random() * 18, familyColor[job.family], job.failed ? 0.5 : 0.7)
   if (job.failed) {
     const fx = water.cx + (Math.random() - 0.5) * water.rx * 0.7
     const fy = water.floorCy + (Math.random() - 0.5) * water.floorRy * 0.5
@@ -316,9 +316,9 @@ export function stepWorld(world: World, input: FluidInput): void {
         world.dye.ctx,
         q.x,
         q.y,
-        p.r * (2.2 + (1 - p.life) * 1.4),
+        p.r * (3.4 + (1 - p.life) * 2.2),
         familyColor[p.family],
-        0.12 * p.life,
+        0.28 * p.life,
       )
       dyeLive.push(p)
     }

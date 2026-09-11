@@ -186,11 +186,15 @@ function frame(now: number): void {
   }
 
   const water = waterGeom(layout, eng.fill)
+  const visualFee =
+    eng.feeMicro && eng.feeMicro > 0
+      ? eng.fee
+      : Math.min(0.28, 0.06 + (eng.tps ?? 0) / 14000)
   stepWorld(world, {
     water,
     held: eng.held,
     tilt: eng.tilt,
-    fee: eng.fee,
+    fee: visualFee,
     tps: eng.tps,
     reduced: eng.reduced,
     dt,

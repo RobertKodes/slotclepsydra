@@ -27,9 +27,20 @@ function bowlOuter(ctx: CanvasRenderingContext2D, L: Layout): void {
 function bowlInnerClip(ctx: CanvasRenderingContext2D, L: Layout): void {
   const { basinCx: cx, basinCy: cy, basinRx: rx, basinRy: ry, bowlDepth: d } = L
   ctx.beginPath()
-  ctx.ellipse(cx, cy, rx * 0.9, ry * 0.86, 0, Math.PI, 0, true)
-  ctx.bezierCurveTo(cx + rx * 0.92, cy + d * 0.46, cx + rx * 0.56, cy + d * 0.92, cx, cy + d * 0.92)
-  ctx.bezierCurveTo(cx - rx * 0.56, cy + d * 0.92, cx - rx * 0.92, cy + d * 0.46, cx - rx * 0.9, cy)
+  ctx.moveTo(cx - rx * 0.88, cy)
+  ctx.bezierCurveTo(cx - rx * 0.98, cy + d * 0.5, cx - rx * 0.52, cy + d * 0.98, cx, cy + d * 0.96)
+  ctx.bezierCurveTo(cx + rx * 0.52, cy + d * 0.98, cx + rx * 0.98, cy + d * 0.5, cx + rx * 0.88, cy)
+  ctx.ellipse(cx, cy, rx * 0.88, ry * 0.78, 0, 0, Math.PI, true)
+  ctx.closePath()
+}
+
+function waterVolume(ctx: CanvasRenderingContext2D, L: Layout, water: WaterGeom): void {
+  const bottom = L.basinCy + L.bowlDepth * 0.96
+  const inner = L.basinRx * 0.48
+  ctx.beginPath()
+  ctx.ellipse(water.cx, water.cy, water.rx, water.ry, 0, 0, Math.PI)
+  ctx.lineTo(L.basinCx - inner, bottom)
+  ctx.lineTo(L.basinCx + inner, bottom)
   ctx.closePath()
 }
 
@@ -240,9 +251,9 @@ function drawSpout(
   const y = L.spoutY
   ctx.save()
   ctx.translate(x, y)
-  ctx.rotate(0.55)
-  const len = L.jarW * 0.55
-  const r = Math.max(3.5, L.jarW * 0.055)
+  ctx.rotate(L.spoutAng)
+  const len = L.spoutLen
+  const r = Math.max(3.8, L.jarW * 0.06)
   const g = ctx.createLinearGradient(0, -r, 0, r)
   g.addColorStop(0, ink.brassBright)
   g.addColorStop(0.45, ink.brass)
@@ -272,8 +283,8 @@ function drawSpout(
   ctx.stroke()
   ctx.restore()
 
-  const mouthX = x + Math.cos(0.55) * (L.jarW * 0.55)
-  const mouthY = y + Math.sin(0.55) * (L.jarW * 0.55)
+  const mouthX = L.mouthX
+  const mouthY = L.mouthY
 
   if (!held && !reduced) {
     const hr = hangingRadius(hang, fee)
@@ -352,9 +363,9 @@ function drawBasinStone(ctx: CanvasRenderingContext2D, L: Layout): void {
     70,
     rgba(ink.night, 0.16),
   )
-  ctx.strokeStyle = rgba(ink.limestoneDeep, 0.35)
-  ctx.lineWidth = 1.2
-  for (let i = -3; i <= 3; i++) {
+  ctx.strokeStyle = rgba(ink.limestoneDeep, 0.18)
+  ctx.lineWidth = 1
+  for (let i = -2; i <= 2; i++) {
     const t = i / 3
     ctx.beginPath()
     ctx.moveTo(L.basinCx + t * L.basinRx * 0.85, L.basinCy + 8)
@@ -387,36 +398,38 @@ function drawWater(
   bowlInnerClip(ctx, L)
   ctx.clip()
 
+  const wet = ctx.createLinearGradient(L.basinCx, L.basinCy, L.basinCx, L.basinCy + L.bowlDepth)
+  wet.addColorStop(0, ink.limestoneDeep)
+  wet.addColorStop(0.45, '#241C18')
+  wet.addColorStop(1, '#140E0C')
+  ctx.fillStyle = wet
+  ctx.fillRect(L.basinCx - L.basinRx, L.basinCy - L.basinRy, L.basinRx * 2, L.bowlDepth + L.basinRy * 2)
+
   const body = ctx.createLinearGradient(water.cx, water.cy - water.ry, water.cx, L.basinCy + L.bowlDepth)
-  body.addColorStop(0, rgba(ink.waterSkin, 0.35))
-  body.addColorStop(0.18, ink.basinWater)
+  body.addColorStop(0, ink.waterHi)
+  body.addColorStop(0.22, ink.basinWater)
   body.addColorStop(1, ink.waterDeep)
   ctx.fillStyle = body
-  ctx.beginPath()
-  ctx.ellipse(water.cx, water.cy, water.rx, water.ry, 0, 0, Math.PI)
-  ctx.lineTo(L.basinCx + L.basinRx * 0.7, L.basinCy + L.bowlDepth * 0.92)
-  ctx.lineTo(L.basinCx - L.basinRx * 0.7, L.basinCy + L.bowlDepth * 0.92)
-  ctx.closePath()
+  waterVolume(ctx, L, water)
   ctx.fill()
 
   ctx.save()
-  ellipse(ctx, water.cx, water.floorCy, water.floorRx * 1.15, water.floorRy * 1.2)
+  waterVolume(ctx, L, water)
   ctx.clip()
-  ctx.globalAlpha = 0.85
+  ctx.globalAlpha = 0.9
   ctx.drawImage(
     world.iron.canvas,
-    water.cx - water.floorRx,
-    water.floorCy - water.floorRy,
-    water.floorRx * 2,
-    water.floorRy * 2,
+    water.cx - water.floorRx * 1.2,
+    water.floorCy - water.floorRy * 1.2,
+    water.floorRx * 2.4,
+    water.floorRy * 2.4,
   )
   ctx.restore()
 
   ctx.save()
   ellipse(ctx, water.cx, water.cy, water.rx, water.ry)
   ctx.clip()
-  ctx.globalCompositeOperation = 'screen'
-  ctx.globalAlpha = 0.72
+  ctx.globalAlpha = 0.88
   ctx.drawImage(
     world.dye.canvas,
     water.cx - water.rx,
@@ -424,63 +437,61 @@ function drawWater(
     water.rx * 2,
     water.ry * 2,
   )
-  ctx.restore()
-
+  for (const p of world.dyes) {
+    const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r)
+    g.addColorStop(0, rgba(familyColor[p.family], 0.55 * p.life))
+    g.addColorStop(1, rgba(familyColor[p.family], 0))
+    ctx.fillStyle = g
+    ctx.beginPath()
+    ctx.ellipse(p.x, p.y, p.r, p.r * (water.ry / water.rx), 0, 0, Math.PI * 2)
+    ctx.fill()
+  }
   if (!reduced) {
-    ctx.save()
-    ellipse(ctx, water.cx, water.cy, water.rx, water.ry)
-    ctx.clip()
-    ctx.globalCompositeOperation = 'screen'
     const t = now / 900
-    for (let i = 0; i < 3; i++) {
-      ctx.strokeStyle = rgba(ink.waterSkin, 0.07 + fee * 0.08)
-      ctx.lineWidth = 1.2
+    for (let i = 0; i < 4; i++) {
+      ctx.strokeStyle = rgba(ink.waterSkin, 0.1 + fee * 0.1)
+      ctx.lineWidth = 1.1
       ctx.beginPath()
-      const y0 = water.cy - water.ry * 0.5 + i * water.ry * 0.4
+      const y0 = water.cy - water.ry * 0.55 + i * water.ry * 0.35
       ctx.moveTo(water.cx - water.rx, y0)
-      for (let x = water.cx - water.rx; x < water.cx + water.rx; x += 8) {
-        const yy = y0 + Math.sin(x * 0.05 + t + i) * (2 + fee * 4)
+      for (let x = water.cx - water.rx; x < water.cx + water.rx; x += 6) {
+        const yy = y0 + Math.sin(x * 0.045 + t + i) * (2.5 + fee * 5)
         ctx.lineTo(x, yy)
       }
       ctx.stroke()
     }
-    ctx.restore()
   }
-
-  ctx.save()
-  ellipse(ctx, water.cx, water.cy, water.rx, water.ry)
-  ctx.clip()
   for (const r of world.ripples) {
-    ctx.strokeStyle = rgba(ink.foam, r.a * 0.7)
-    ctx.lineWidth = 1.1
+    ctx.strokeStyle = rgba(ink.foam, r.a * 0.75)
+    ctx.lineWidth = 1.2
     ellipse(ctx, r.x, r.y, r.r, r.r * (water.ry / water.rx))
     ctx.stroke()
   }
   for (const f of world.foam) {
-    ctx.fillStyle = rgba(ink.foam, 0.35 * f.life)
+    ctx.fillStyle = rgba(ink.foam, 0.4 * f.life)
     ctx.beginPath()
-    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2)
+    ctx.ellipse(f.x, f.y, f.r, f.r * 0.45, 0, 0, Math.PI * 2)
     ctx.fill()
   }
   ctx.restore()
 
   const skin = ctx.createRadialGradient(
-    water.cx - water.rx * 0.25,
-    water.cy - water.ry * 0.4,
+    water.cx - water.rx * 0.28,
+    water.cy - water.ry * 0.45,
     4,
     water.cx,
     water.cy,
     water.rx,
   )
-  skin.addColorStop(0, rgba(ink.foam, 0.12 + fee * 0.1))
-  skin.addColorStop(0.45, rgba(ink.waterSkin, 0.12))
+  skin.addColorStop(0, rgba(ink.foam, 0.16 + fee * 0.12))
+  skin.addColorStop(0.4, rgba(ink.waterSkin, 0.18))
   skin.addColorStop(1, 'rgba(0,0,0,0)')
   ctx.fillStyle = skin
   ellipse(ctx, water.cx, water.cy, water.rx, water.ry)
   ctx.fill()
 
-  ctx.strokeStyle = rgba(ink.foam, 0.28 + fee * 0.2)
-  ctx.lineWidth = 1.4
+  ctx.strokeStyle = rgba(ink.foam, 0.32 + fee * 0.22)
+  ctx.lineWidth = 1.6
   ellipse(ctx, water.cx, water.cy, water.rx, water.ry)
   ctx.stroke()
 
@@ -543,7 +554,16 @@ function drawRim(ctx: CanvasRenderingContext2D, L: Layout): void {
   }
 }
 
-function drawDrops(ctx: CanvasRenderingContext2D, world: World): void {
+function drawDrops(ctx: CanvasRenderingContext2D, world: World, L: Layout): void {
+  if (world.drops.length) {
+    const last = world.drops[world.drops.length - 1]!
+    ctx.strokeStyle = rgba(ink.waterSkin, 0.45)
+    ctx.lineWidth = 1.6
+    ctx.beginPath()
+    ctx.moveTo(L.mouthX, L.mouthY)
+    ctx.lineTo(last.x, last.y)
+    ctx.stroke()
+  }
   for (const d of world.drops) {
     const col = d.failed ? ink.oxbloodWet : familyColor[d.family]
     ctx.fillStyle = rgba(col, 0.9)
@@ -601,6 +621,11 @@ export function drawFrame(
   drawWorkshop(ctx, L)
   drawPlinth(ctx, L)
 
+  const visualFee =
+    eng.feeMicro && eng.feeMicro > 0
+      ? eng.fee
+      : Math.min(0.28, 0.06 + (eng.tps ?? 0) / 14000)
+
   ctx.save()
   ctx.translate(L.basinCx, L.basinCy)
   ctx.rotate(eng.tilt)
@@ -608,12 +633,12 @@ export function drawFrame(
 
   drawStand(ctx, L)
   drawBasinStone(ctx, L)
-  drawWater(ctx, L, water, world, eng.fee, now, eng.reduced)
+  drawWater(ctx, L, water, world, visualFee, now, eng.reduced)
   drawRim(ctx, L)
-  drawOverflow(ctx, L, eng.fill, eng.fee)
-  drawJar(ctx, L, eng.fill, eng.fee)
-  drawSpout(ctx, L, eng.fee, eng.held, world.hang, eng.reduced)
-  drawDrops(ctx, world)
+  drawOverflow(ctx, L, eng.fill, visualFee)
+  drawJar(ctx, L, eng.fill, visualFee)
+  drawSpout(ctx, L, visualFee, eng.held, world.hang, eng.reduced)
+  drawDrops(ctx, world, L)
   drawEngraving(ctx, L)
 
   ctx.restore()

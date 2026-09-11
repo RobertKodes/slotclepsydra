@@ -50,7 +50,7 @@ export function createEngine(reduced: boolean): Engine {
     tps: null,
     feeMicro: null,
     fee: 0.08,
-    fill: 0.42,
+    fill: 0.55,
     wire: wireName(rpc.url),
     live: false,
     held: false,
@@ -77,7 +77,7 @@ export function targetFill(tps: number | null): number {
 
 export function stepFill(eng: Engine, dt: number): void {
   const goal = targetFill(eng.tps)
-  const k = eng.held ? 0.08 : 0.55
+    const k = eng.held ? 0.08 : 1.1
   eng.fill += (goal - eng.fill) * Math.min(1, dt * k)
 }
 
